@@ -2,6 +2,7 @@ name: Main project workflow
 
 on:
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
 
 jobs:
   cross-repo-pipeline:
@@ -10,7 +11,7 @@ jobs:
       - name: Cross Repo Pipeline
         uses: amandastecz/pipeline-trigger@v1.1
         with:
-          #pat-token: ${{ secrets.PAT_TOKEN }}
+          pat-token: ${{ secrets.Test_PAT }}
           owner: MiguelazoDS
           repo: Test_Info
 
