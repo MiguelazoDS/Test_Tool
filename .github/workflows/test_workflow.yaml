@@ -1,0 +1,16 @@
+name: Main project workflow
+
+on:
+  pull_request:
+
+jobs:
+  cross-repo-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cross Repo Pipeline
+        uses: amandastecz/pipeline-trigger@v1.1
+        with:
+          pat-token: ${{ secrets.PAT_TOKEN }}
+          owner: MiguelazoDS
+          repo: Test_Info
+
