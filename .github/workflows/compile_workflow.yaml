@@ -1,0 +1,42 @@
+name: Generate Test Tool Artifacts
+on:
+  push:
+
+jobs:
+  generate-test-tool:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      #- name: Install XZ dependency
+        #run: sudo apt install xz-utils
+
+      - name: Compile Test Tool
+        run: |
+          mkdir build && cd build
+          cmake .. && make -j$(nproc)
+
+      - name: Compress Test Tool
+        run: |
+          cd build/tool
+          testtool_name=tool
+          echo "Current dir"
+          pwd
+          echo "Files"
+          ls -l
+          XZ_OPT=-9 tar cfJ ${testtool_name}.tar.xz ${testtool_name}
+          [ $(tar -tf ${testtool_name}.tar.xz) = ${testtool_name} ] && exit 0
+
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ success() }}
+        with:
+          name: tool.tar.xz
+          path: build/tool/tool.tar.xz
+          if-no-files-found: error
+          compression-level: 0
+          #overwrite: true
+
+
