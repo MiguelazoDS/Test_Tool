@@ -1,4 +1,4 @@
-project(tool)
+project(tool2)
 
 include_directories(src/)
 

@@ -2,6 +2,7 @@ name: Main project workflow
 
 on:
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
 
 jobs:
   cross-repo-pipeline:

@@ -2,6 +2,10 @@ name: Generate Test Tool Artifacts
 on:
   push:
 
+env:
+  TOOLS_DIR: ${{github.workspace}}/build/tools
+  TOOLS_FILE_NAME: tools
+
 jobs:
   generate-test-tool:
     runs-on: ubuntu-latest
@@ -9,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      #- name: Install XZ dependency
+      #- name: Install XZ dependency (Not required, comes with the runner)
         #run: sudo apt install xz-utils
 
       - name: Compile Test Tool
@@ -19,24 +23,24 @@ jobs:
 
       - name: Compress Test Tool
         run: |
-          cd build/tool
-          testtool_name=tool
-          echo "Current dir"
-          pwd
-          echo "Files"
-          ls -l
-          XZ_OPT=-9 tar cfJ ${testtool_name}.tar.xz ${testtool_name}
-          [ $(tar -tf ${testtool_name}.tar.xz) = ${testtool_name} ] && exit 0
-
+          cd ${{env.TOOLS_DIR}}; XZ_OPT=-9; find . -type f -executable -exec tar cfJ ${{env.TOOLS_FILE_NAME}}.tar.xz {} +;
+          if [ $? -eq 0 ]; then
+            size=$(du -sh ${{env.TOOLS_FILE_NAME}}.tar.xz)
+            echo "Tools successfully compressed: ${size}"
+            mv ${{env.TOOLS_FILE_NAME}}.tar.xz ${{github.workspace}}
+            exit 0
+          else
+            echo "Error compressing tools."
+            exit 1
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ success() }}
         with:
-          name: tool.tar.xz
-          path: build/tool/tool.tar.xz
+          name: ${{env.TOOLS_FILE_NAME}}
+          path: ${{env.TOOLS_FILE_NAME}}.tar.xz
           if-no-files-found: error
           compression-level: 0
-          #overwrite: true
-
+          overwrite: true
 
